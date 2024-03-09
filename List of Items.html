@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Shopping List</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            background-image: url("C:/apache-tomcat-8.5.96/webapps/SERVLET/Assets/Groceries.jpg");
+            background-size: cover;
+            background-position: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: rgba(255, 255, 255, 0.8); /* Background color with opacity */
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            position: relative; /* Added for positioning the logout button */
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        ul {
+            padding: 0;
+            margin: 0;
+            list-style-type: none;
+        }
+        li {
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        li:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .add-item-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .add-item-container h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .add-item-form {
+            display: none;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-top: 20px; /* Added margin-top to separate from the button */
+        }
+        .add-item-form.active {
+            display: block;
+        }
+        .add-item-form label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        .add-item-form input[type="text"],
+        .add-item-form input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        #add-item-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px; /* Reduced padding */
+            margin-top: 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: auto; /* Allow button to adjust width based on content */
+            font-size: 14px; /* Reduced font size */
+            transition: background-color 0.3s ease;
+        }
+        #add-item-button:hover {
+            background-color: #45a049;
+        }
+        .logout-link {
+            position: fixed; /* Position it fixed to stay at the bottom right */
+            bottom: 20px; /* Adjust bottom position */
+            right: 20px; /* Adjust right position */
+            display: block;
+            text-align: center;
+            text-decoration: none;
+            color: #fff;
+            background-color: #4CAF50; /* Green background color */
+            padding: 14px 20px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        .logout-link:hover {
+            background-color: #45a049; /* Darker green on hover */
+        }
+        .add-item-link {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 14px 20px;
+            margin-top: 20px;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+        .add-item-link:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Shopping List</h1>
+        <ul id="shopping-list">
+            <!-- Shopping list items will be dynamically added here from the database -->
+            <li>Rice 10 Kg</li>
+            <li>Tomato 1 Kg</li>
+            <li>Olive Oil 5 Litres</li>
+            <li>Wheat 10 Kg</li>
+            <li>Ghee 500 Grams</li>
+        </ul>
+        <div class="add-item-container">
+            <form id="add-item-form" class="add-item-form">
+                <label for="item">Item:</label>
+                <input type="text" id="item" name="item" required><br>
+                <label for="quantity" id="quantity-label" style="display: none;">Quantity:</label>
+                <input type="number" id="quantity" name="quantity" style="display: none;"><br>
+                <button id="add-item-button">Add Item</button>
+            </form>
+        </div>
+        <button id="toggle-form-button" class="add-item-link">Add More Items</button>
+
+        <!-- Logout button -->
+        <a href="#" id="logout-button" class="logout-link">Logout</a>
+    </div>
+
+    <script>
+        // JavaScript code
+        document.getElementById('toggle-form-button').addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent form submission
+
+            var form = document.getElementById('add-item-form');
+            var button = document.getElementById('toggle-form-button');
+
+            // Toggle visibility of form and button
+            if (form.classList.contains('active')) {
+                form.classList.remove('active');
+                button.innerText = 'Add More Items';
+            } else {
+                form.classList.add('active');
+                button.innerText = 'Cancel';
+            }
+        });
+
+        document.getElementById('add-item-button').addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent form submission
+
+            var itemInput = document.getElementById('item');
+            var quantityInput = document.getElementById('quantity');
+
+            var itemName = itemInput.value;
+            var quantity = quantityInput.value;
+
+            if (itemName.trim() === '') {
+                alert('Please enter an item name');
+                return;
+            }
+
+            var newItem = document.createElement('li');
+            newItem.textContent = itemName + (quantity ? ' ' + quantity : ''); // Include quantity if provided
+            document.getElementById('shopping-list').appendChild(newItem);
+
+            // Clear input fields
+            itemInput.value = '';
+            quantityInput.value = '';
+        });
+
+        // Logout button functionality
+        document.getElementById('logout-button').addEventListener('click', function(event) {
+            // Redirect to the login page
+            window.location.href = "Shopping List.html"; // Change "logout.php" to your logout endpoint
+        });
+    </script>
+</body>
+</html>
